@@ -1,10 +1,12 @@
 game_log("MERCHANT SCRIPT STARTED");
-load_code(3);
+
+load_code(3); // load gold per hour meter (use spadarfaars meter on github)
+
 // DEFINE OUT STATE VALUES
 var state = "walking_to_town";
 var new_state = "";
 
-var bank_at_empty_slots = 39;
+var bank_at_empty_slots = 30;
 
 var item_name = "shoes";
 
@@ -58,7 +60,7 @@ function state_controller() {
 //	game_log("current state: " + state);
 
 	// Check if we're already upgrading
-	if(upgrade_status === true && hasUpgraded === false) {
+	if(upgrade_status === true) { //  && hasUpgraded === false
 		new_state = "upgrading";
 	}
 	
@@ -81,6 +83,9 @@ if(character.esize <= bank_at_empty_slots && state != "upgrading") {
 if(!isAtTown() && state === "at_town" && state != "banking") {
 	new_state = "walking_to_town";
 }
+if(isAtTown() && state === "walking_to_town") {
+	new_state = "at_town";
+}
 if(state === "walking_to_town" && isInsideBank() === true) {
 		smart_move({to:"town"});
 }
@@ -97,6 +102,9 @@ if (isAtTown() && upgrade_status === false && state != "upgrading") {
 	new_state = "at_town";
 		//inTown = false;
 }
+if(character.gold < 500000 && state === "upgrading") {
+	new_state = "walking_to_town";
+}
 	
 	// If at town and can upgrade(enough gold, hasn't already), set state 			//upgrade
 if (state === "at_town" && character.gold > 500000 && upgrade_status === false) {
@@ -107,6 +115,7 @@ if (state === "at_town" && character.gold > 500000 && upgrade_status === false) 
 	
 if (upgrade_status === false && hasUpgraded === true && state === "upgrading") {
 	new_state = "walking_to_town";
+	hasUpgraded = false;
 }
 	
 if (hasUpgraded === true) {
@@ -175,7 +184,7 @@ function isInsideBank() {
 
 // Check is inside resting coord(THESE MIGHT NEED TO BE EXPANDED) range in town.
 function isAtTown() {
-	if(character.real_x >= -15 && character.real_y < 15 && character.real_x <= 15 && character.real_y >= -15) {
+	if(character.real_x >= -20 && character.real_y < 20 && character.real_x <= 20 && character.real_y >= -20) {
 		return true;
 	} else {
   	return false;
