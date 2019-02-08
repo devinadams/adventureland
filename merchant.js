@@ -1,12 +1,19 @@
+game_log("-----------------------")
 game_log("MERCHANT SCRIPT STARTED");
-load_code(3);
-// DEFINE OUT STATE VALUES
+game_log("-----------------------")
+
+
+// Define our state variables
 var state = "walking_to_town";
 var new_state = "";
 
-var bank_at_empty_slots = 30;
+var bank_at_empty_slots = 30; // Bank at this many empty slots
 
-var item_name = "pants";
+var have_stuff_to_sell = false; // Doesnt merchant have anything to sell?
+var saySomething = false; // Should merchant say something?
+var phrase = ""; // What merchant should say
+
+var item_name = "staff";
 
 var hasBeenToBank = false;
 var inTown = false;
@@ -22,30 +29,32 @@ setInterval(function () {
     state_controller();
 	
     //Switch statement decides what we should do based on the value of 'state'
-    switch(state)
-    {
-        case "upgrading":
-					moveTo(-190, -140); // blacksmith coords
-					break;
+switch(state)
+	{
+	case "upgrading":
+	moveTo(-190, -140); // blacksmith coords
+	break;
 					
-        case "walking_to_town":
-			if(!isInsideBank()) {
-          			moveTo(0, 0);
-			} else {
-				smart_move({to:"town"});
-			}
-					break;
+	case "walking_to_town":
+	if(!isInsideBank()) {
+		moveTo(0, 0);
+	} else {
+		smart_move({to:"town"});
+	}
+	break;
 					
-				case "banking":
-					goToBank();
-					break;
+	case "banking":
+	goToBank();
+	break;
 			
-		case "merching":
-			break;
+	case "merching":
+	break;
 			
-				case "at_town":
-					break;
-    }
+	case "at_town":
+	break;
+
+	}
+	
 }, 6000);//Execute every 6 seconds?
 
 var loops = 0;
@@ -54,9 +63,11 @@ function state_controller() {
 	if (loops < 51) {
 		loops += 1;
 	}
-	if (loops === 15) {
+	if (loops === 20) {
 		game_log("current state: " + state);
-		say("COME CHECK MY WARES! - err WARE! :)");
+		if(saySomething == true) {
+			say(phrase);
+		}
 		loops = 0;
 	}
 //	game_log("current state: " + state);
@@ -92,7 +103,7 @@ if(character.esize <= bank_at_empty_slots && state != "upgrading") {
 }
 
 if(state === "at_town" && state != "upgrading" && state != "merching") {
-	if(isMerchStandActive() === false) {
+	if(isMerchStandActive() === false && have_stuff_to_sell == true) {
 		moveTo(33, 49);
 		new_state = "merching";
 		state = "merching";
