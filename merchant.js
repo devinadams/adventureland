@@ -1,10 +1,12 @@
 game_log("MERCHANT SCRIPT STARTED");
-
+load_code(3);
 // DEFINE OUT STATE VALUES
 var state = "walking_to_town";
 var new_state = "";
 
-var item_name = "helmet";
+var bank_at_empty_slots = 30;
+
+var item_name = "shoes";
 
 var hasBeenToBank = false;
 var inTown = false;
@@ -27,7 +29,11 @@ setInterval(function () {
 					break;
 					
         case "walking_to_town":
-          moveTo(0, 0);
+			if(!isInsideBank()) {
+          			moveTo(0, 0);
+			} else {
+				smart_move({to:"town"});
+			}
 					break;
 					
 				case "banking":
@@ -45,7 +51,7 @@ function state_controller() {
 	if (loops < 6) {
 		loops += 1;
 	}
-	if (loops === 5) {
+	if (loops === 1) {
 		game_log("current state: " + state);
 		loops = 0;
 	}
@@ -68,12 +74,15 @@ function state_controller() {
 	
 	// If character inventory empty spaces are less than or equal to 39
 	// and character has upgraded - set state banking
-if(character.esize <= 39 && hasUpgraded === true) {
+if(character.esize <= bank_at_empty_slots && state != "upgrading") {
 	new_state = "banking";
 }
 	
-if(!isAtTown() && state === "at_town") {
+if(!isAtTown() && state === "at_town" && state != "banking") {
 	new_state = "walking_to_town";
+}
+if(state === "walking_to_town" && isInsideBank() === true) {
+		smart_move({to:"town"});
 }
 	
 	// If chracter has been to bank and has more than 30 empty spaces
@@ -92,7 +101,6 @@ if (isAtTown() && upgrade_status === false && state != "upgrading") {
 	// If at town and can upgrade(enough gold, hasn't already), set state 			//upgrade
 if (state === "at_town" && character.gold > 500000 && upgrade_status === false) {
 	new_state = "upgrading";
-	state = "upgrading";
 	upgradeStatus = true;
 }
 	
@@ -111,7 +119,10 @@ if (state != new_state) {
 }
 // Move to function
 function moveTo(x, y) {
-	if (!smart.moving && !isAtTown()) {
+	//if (!smart.moving && !isAtTown()) {
+	if(x === character.real_x && y == character.real_y) {
+		return;
+	} else {
             smart_move({ x:x, y:y});
     }
 }
