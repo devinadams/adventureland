@@ -111,7 +111,7 @@ if (state != new_state) {
 }
 // Move to function
 function moveTo(x, y) {
-	if (!smart.moving) {
+	if (!smart.moving && !isAtTown()) {
             smart_move({ x:x, y:y});
     }
 }
@@ -164,7 +164,7 @@ function isInsideBank() {
 
 // Check is inside resting coord(THESE MIGHT NEED TO BE EXPANDED) range in town.
 function isAtTown() {
-	if(character.real_x >= -15 && character.real_y >= 15) {
+	if(character.real_x >= -15 && character.real_y < 15 && character.real_x <= 15 && character.real_y >= -15) {
 		return true;
 	} else {
   	return false;
