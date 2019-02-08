@@ -54,9 +54,9 @@ function state_controller() {
 	if (loops < 51) {
 		loops += 1;
 	}
-	if (loops === 1) {
+	if (loops === 15) {
 		game_log("current state: " + state);
-		//say("COME CHECK MY WARES! :)");
+		say("COME CHECK MY WARES! :)");
 		loops = 0;
 	}
 //	game_log("current state: " + state);
