@@ -8,7 +8,8 @@ var monster_targets = ["bee"];
 
 var use_skills = true;
 
-var gold_threshold = 100000;
+var merchant_character_name = "shidded";
+var gold_empty_threshold = 100000;
 var potion_allowance = 20000;
 
 var justRespawned = false;
@@ -16,7 +17,6 @@ var justRespawned = false;
 var bank_at_empty_slots = 33;
 
 var state = "farm";
-var character_name = "shidded";
 
 var min_potions = 10; //The number of potions at which to do a resupply run.
 var purchase_amount = 500;//How many potions to buy at once.
@@ -140,7 +140,7 @@ function giveAllSingleItems() {
 		if (item == 0) continue;
 		if (!character.items[item]) continue;
 		if(parent.G.items[character.items[item].name].type === "pot") continue;
-		send_item(character_name, item, 1);
+		send_item(merchant_character_name, item, 1);
 		game_log(empty_slots);
 	}
 	}
@@ -176,8 +176,8 @@ function resupply_potions()
 	if(distance_to_merchant != null 
 	   && distance_to_merchant < 250)
 	{
-	if(character.gold > 50000) {
-		send_gold(character_name, character.gold - 10000);
+	if(character.gold > gold_empty_threshold) {
+		send_gold(merchant_character_name, character.gold - 10000);
 		//giveAllSingleItems();
 	}
 		//giveAllSingleItems();
