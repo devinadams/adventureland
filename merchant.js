@@ -39,7 +39,10 @@ setInterval(function () {
 				case "banking":
 					goToBank();
 					break;
-
+			
+		case "merching":
+			break;
+			
 				case "at_town":
 					break;
     }
@@ -51,9 +54,9 @@ function state_controller() {
 	if (loops < 51) {
 		loops += 1;
 	}
-	if (loops === 50) {
+	if (loops === 1) {
 		game_log("current state: " + state);
-		say("COME CHECK MY WARES! :)");
+		//say("COME CHECK MY WARES! :)");
 		loops = 0;
 	}
 //	game_log("current state: " + state);
@@ -64,7 +67,7 @@ function state_controller() {
 	}
 	
 	// If we're not at town or doing anything else, set state walking to town
-	if(state != "at_town" && state != "upgrading" && state != "banking") {
+	if(state != "at_town" && state != "upgrading" && state != "banking" && state != "merching") {
 		new_state = "walking_to_town";
 	}
 	
@@ -73,17 +76,25 @@ function state_controller() {
 		state = new_state;
 	}
 	
+		if(state === "merching" && isMerchStandActive() === false) 
+	{
+		openMerchStand();
+	}
+	
 	// If character inventory empty spaces are less than or equal to 39
 	// and character has upgraded - set state banking
 if(character.esize <= bank_at_empty_slots && state != "upgrading") {
 	new_state = "banking";
 }
 
-if(state === "at_town" && state != "upgrading") {
-	openMerchStand();
-	new_state = "merching";
+if(state === "at_town" && state != "upgrading" && state != "merching") {
+	if(isMerchStandActive() === false) {
+		moveTo(33, 49);
+		new_state = "merching";
+		state = "merching";
+	}
 }
-if(state != "merching" && isMerchStandActive() && state != "at_town") {
+if(state != "merching" && isMerchStandActive() ) {
 	closeMerchStand();
 }
 	
