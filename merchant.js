@@ -23,23 +23,33 @@ setInterval(function () {
     switch(state)
     {
         case "upgrading":
-			moveTo(-190, -140); // blacksmith coords
-            break;
+					moveTo(-190, -140); // blacksmith coords
+					break;
+					
         case "walking_to_town":
-            moveTo(0, 0);
-            break;
-		case "banking":
-			goToBank();
-			break;
-		case "at_town":
-			break;
+          moveTo(0, 0);
+					break;
+					
+				case "banking":
+					goToBank();
+					break;
+
+				case "at_town":
+					break;
     }
 }, 3000);//Execute every 3 seconds?
 
+var loops = 0;
 // This is where state values are returned based on conditionals
-function state_controller()
-{
-	game_log("current state: " + state);
+function state_controller() {
+	if (loops < 6) {
+		loops += 1;
+	}
+	if (loops === 5) {
+		game_log("current state: " + state);
+		loops = 0;
+	}
+//	game_log("current state: " + state);
 
 	// Check if we're already upgrading
 	if(upgrade_status === true && hasUpgraded === false) {
@@ -52,51 +62,49 @@ function state_controller()
 	}
 	
 	// Set state to new state
-	if(state != new_state)
-	{
+	if(state != new_state) {
 		state = new_state;
 	}
 	
 	// If character inventory empty spaces are less than or equal to 39
 	// and character has upgraded - set state banking
-	if(character.esize <= 39 && hasUpgraded === true) {
-		new_state = "banking";
-	}
+if(character.esize <= 39 && hasUpgraded === true) {
+	new_state = "banking";
+}
 	
-	if(!isAtTown() && state === "at_town") {
-		new_state = "walking_to_town";
-	}
+if(!isAtTown() && state === "at_town") {
+	new_state = "walking_to_town";
+}
 	
 	// If chracter has been to bank and has more than 30 empty spaces
 	// walk to town
-	if (hasBeenToBank === true && character.esize >= 30 && upgrade_status === false) {
-		new_state = "walking_to_town";
-		hasBeenToBank = false;
-	}
+if (hasBeenToBank === true && character.esize >= 30 && upgrade_status === false) {
+	new_state = "walking_to_town";
+	hasBeenToBank = false;
+}
 	
 	// If in town and not upgrading set state at town
-	if (isAtTown() && upgrade_status === false && state != "upgrading") {
-		new_state = "at_town";
+if (isAtTown() && upgrade_status === false && state != "upgrading") {
+	new_state = "at_town";
 		//inTown = false;
-	}
+}
 	
 	// If at town and can upgrade(enough gold, hasn't already), set state 			//upgrade
-	if (state === "at_town" && character.gold > 500000 && upgrade_status === false) {
-		new_state = "upgrading";
-		state = "upgrading";
-		upgradeStatus = true;
-	}
+if (state === "at_town" && character.gold > 500000 && upgrade_status === false) {
+	new_state = "upgrading";
+	state = "upgrading";
+	upgradeStatus = true;
+}
 	
 	
-	if (upgrade_status === false && hasUpgraded === true && state === "upgrading") {
-		new_state = "walking_to_town";
-	}
+if (upgrade_status === false && hasUpgraded === true && state === "upgrading") {
+	new_state = "walking_to_town";
+}
 	
-	if(hasUpgraded === true) {
-		upgrade_status = false;
-	}
-	if(state != new_state)
-	{
+if (hasUpgraded === true) {
+	upgrade_status = false;
+}
+if (state != new_state) {
 		state = new_state;
 	}
 	
@@ -109,7 +117,7 @@ function moveTo(x, y) {
 }
 
 // Main Upgrading function
-setInterval(function(){
+setInterval(function() {
 		if(state === "upgrading" && !smart.moving && character.gold > 250000) {
 				if(locate_item("scroll0")==-1) buy("scroll0",200);
 				if(locate_item("scroll1")==-1) buy("scroll1",20);
@@ -133,20 +141,16 @@ setInterval(function(){
 },125);
 
 // Locate items by name
-function locate_item(name)
-{
-	for(var i=0;i<42;i++)
-	{
+function locate_item(name) {
+	for(var i=0;i<42;i++) {
 		if(character.items[i] && character.items[i].name==name) return i;
 	}
 	return -1;
 }
 
 // Return items by index?
-function return_item(name)
-{
-	for(var i=0;i<42;i++)
-	{
+function return_item(name) {
+	for(var i=0;i<42;i++) {
 		if(character.items[i] && character.items[i].name==name) return character.items[i];
 	}
 	return -1;
@@ -160,11 +164,11 @@ function isInsideBank() {
 
 // Check is inside resting coord(THESE MIGHT NEED TO BE EXPANDED) range in town.
 function isAtTown() {
- if(character.real_x >= -15 && character.real_y <= 15) {
-  return true;
- } else {
-  return false;
-}
+	if(character.real_x >= -15 && character.real_y >= 15) {
+		return true;
+	} else {
+  	return false;
+	}
 }
 
 // Go to bank
