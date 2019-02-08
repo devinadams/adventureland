@@ -1,5 +1,5 @@
 game_log("MERCHANT SCRIPT STARTED");
-// script by fart, losely based off spadar attack script
+
 // DEFINE OUT STATE VALUES
 var state = "walking_to_town";
 var new_state = "";
@@ -26,7 +26,7 @@ setInterval(function () {
 			moveTo(-190, -140); // blacksmith coords
             break;
         case "walking_to_town":
-            goToTown();
+            moveTo(0, 0);
             break;
 		case "banking":
 			goToBank();
@@ -63,6 +63,10 @@ function state_controller()
 		new_state = "banking";
 	}
 	
+	if(!isAtTown() && state === "at_town") {
+		new_state = "walking_to_town";
+	}
+	
 	// If chracter has been to bank and has more than 30 empty spaces
 	// walk to town
 	if (hasBeenToBank === true && character.esize >= 30 && upgrade_status === false) {
@@ -71,9 +75,9 @@ function state_controller()
 	}
 	
 	// If in town and not upgrading set state at town
-	if (inTown === true && upgrade_status === false && state != "upgrading") {
+	if (isAtTown() && upgrade_status === false && state != "upgrading") {
 		new_state = "at_town";
-		inTown = false;
+		//inTown = false;
 	}
 	
 	// If at town and can upgrade(enough gold, hasn't already), set state 			//upgrade
@@ -83,12 +87,11 @@ function state_controller()
 		upgradeStatus = true;
 	}
 	
-	// if has upgraded, walk back to town center
+	
 	if (upgrade_status === false && hasUpgraded === true && state === "upgrading") {
 		new_state = "walking_to_town";
 	}
 	
-	// if has upgraded upgrade status = false
 	if(hasUpgraded === true) {
 		upgrade_status = false;
 	}
@@ -98,15 +101,14 @@ function state_controller()
 	}
 	
 }
-
-// move to function
+// Move to function
 function moveTo(x, y) {
 	if (!smart.moving) {
             smart_move({ x:x, y:y});
     }
 }
 
-// Upgrade loop, this is where upgrading actually happens. 
+// Main Upgrading function
 setInterval(function(){
 		if(state === "upgrading" && !smart.moving && character.gold > 250000) {
 				if(locate_item("scroll0")==-1) buy("scroll0",200);
@@ -130,7 +132,7 @@ setInterval(function(){
 	}
 },125);
 
-// Locate item in inventory
+// Locate items by name
 function locate_item(name)
 {
 	for(var i=0;i<42;i++)
@@ -140,7 +142,7 @@ function locate_item(name)
 	return -1;
 }
 
-// Return item 
+// Return items by index?
 function return_item(name)
 {
 	for(var i=0;i<42;i++)
@@ -149,30 +151,23 @@ function return_item(name)
 	}
 	return -1;
 }
-	
-// Check if inside bank
+
+// Check is inside bank by map
 function isInsideBank() {
+  //!character.bank
   return character.map === "bank";
 }
 
-// Check if at town
+// Check is inside resting coord(THESE MIGHT NEED TO BE EXPANDED) range in town.
 function isAtTown() {
-  return character.map === "main";
+ if(character.real_x >= -15 && character.real_y <= 15) {
+  return true;
+ } else {
+  return false;
+}
 }
 
-// Walk to town
-function goToTown() {
-	if (!smart.moving) {
-		if(state != "at_town" && state != "banking" && state != "upgrading") {
-			smart_move({ to: "town" });
-			if(isAtTown()) {
-				inTown = true;
-			}
-		}
-	}
-}
-
-// Walk to bank
+// Go to bank
 function goToBank() {
 	if(state != "at_town" && state != "upgrading" && state != "walking_to_town") {
 		smart_move({ to: "bank" });
@@ -183,7 +178,7 @@ function goToBank() {
 	}
 }
 
-// Deposit all items
+// Deposit all items to bank
 function depositItems() {
     if (character.esize === 42) return; //empty inventory
     for (item in character.items) {
