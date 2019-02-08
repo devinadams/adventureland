@@ -51,7 +51,7 @@ function state_controller() {
 	if (loops < 6) {
 		loops += 1;
 	}
-	if (loops === 1) {
+	if (loops === 5) {
 		game_log("current state: " + state);
 		loops = 0;
 	}
