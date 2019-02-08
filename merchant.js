@@ -6,7 +6,7 @@ var new_state = "";
 
 var bank_at_empty_slots = 30;
 
-var item_name = "shoes";
+var item_name = "pants";
 
 var hasBeenToBank = false;
 var inTown = false;
@@ -56,7 +56,7 @@ function state_controller() {
 	}
 	if (loops === 15) {
 		game_log("current state: " + state);
-		say("COME CHECK MY WARES! :)");
+		say("COME CHECK MY WARES! - err WARE! :)");
 		loops = 0;
 	}
 //	game_log("current state: " + state);
@@ -66,6 +66,10 @@ function state_controller() {
 		new_state = "upgrading";
 	}
 	
+	if (state === "at_town" && character.gold > 500000 && upgrade_status === false) {
+	new_state = "upgrading";
+	upgradeStatus = true;
+}
 	// If we're not at town or doing anything else, set state walking to town
 	if(state != "at_town" && state != "upgrading" && state != "banking" && state != "merching") {
 		new_state = "walking_to_town";
@@ -122,14 +126,7 @@ if (isAtTown() && upgrade_status === false && state != "upgrading") {
 }
 if(character.gold < 500000 && state === "upgrading") {
 	new_state = "walking_to_town";
-}
-	
-	// If at town and can upgrade(enough gold, hasn't already), set state 			//upgrade
-if (state === "at_town" && character.gold > 500000 && upgrade_status === false) {
-	new_state = "upgrading";
-	upgradeStatus = true;
-}
-	
+}	
 	
 if (upgrade_status === false && hasUpgraded === true && state === "upgrading") {
 	new_state = "walking_to_town";
@@ -155,7 +152,11 @@ function moveTo(x, y) {
 }
 
 // Main Upgrading function
+var amountOfScrolls = 0;
 setInterval(function() {
+		if(character.gold < 350000) {
+			return;
+		}
 		if(state === "upgrading" && !smart.moving && character.gold > 350000) {
 				if(locate_item("scroll0")==-1) buy("scroll0",200);
 				if(locate_item("scroll1")==-1) buy("scroll1",5);
@@ -168,15 +169,19 @@ setInterval(function() {
 				if(!def.upgrade) continue; // check whether the item is upgradeable
 				if(item_grade(item) === 2) {
 				   	hasUpgraded = true;
-					game_log(hasUpgraded);
+					game_log(amountOfScrolls);
 					break;
 				}// rare item
+				if(character.gold > 350000) {
 				if(item_grade(item)==0) upgrade(i,locate_item("scroll0"));
+				amountOfScrolls += 1;
 				if(item_grade(item)==1) upgrade(i,locate_item("scroll1"));
+				game_log(amountOfScrolls);
 				break;
+				}
 			}
 	}
-},125);
+},175);
 
 // Locate items by name
 function locate_item(name) {
