@@ -4,7 +4,7 @@ load_code(3);
 var state = "walking_to_town";
 var new_state = "";
 
-var bank_at_empty_slots = 30;
+var bank_at_empty_slots = 39;
 
 var item_name = "shoes";
 
