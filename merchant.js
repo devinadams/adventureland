@@ -43,16 +43,17 @@ setInterval(function () {
 				case "at_town":
 					break;
     }
-}, 3000);//Execute every 3 seconds?
+}, 6000);//Execute every 3 seconds?
 
 var loops = 0;
 // This is where state values are returned based on conditionals
 function state_controller() {
-	if (loops < 6) {
+	if (loops < 8) {
 		loops += 1;
 	}
-	if (loops === 5) {
+	if (loops === 7) {
 		game_log("current state: " + state);
+		say("COME CHECK MY WARES! :)");
 		loops = 0;
 	}
 //	game_log("current state: " + state);
