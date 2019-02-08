@@ -16,6 +16,7 @@ var justRespawned = false;
 var bank_at_empty_slots = 33;
 
 var state = "farm";
+var character_name = "shidded";
 
 var min_potions = 10; //The number of potions at which to do a resupply run.
 var purchase_amount = 500;//How many potions to buy at once.
@@ -139,7 +140,7 @@ function giveAllSingleItems() {
 		if (item == 0) continue;
 		if (!character.items[item]) continue;
 		if(parent.G.items[character.items[item].name].type === "pot") continue;
-		send_item("shidded", item, 1);
+		send_item(character_name, item, 1);
 		game_log(empty_slots);
 	}
 	}
@@ -176,7 +177,7 @@ function resupply_potions()
 	   && distance_to_merchant < 250)
 	{
 	if(character.gold > 50000) {
-		send_gold("shidded", character.gold - 10000);
+		send_gold(character_name, character.gold - 10000);
 		//giveAllSingleItems();
 	}
 		//giveAllSingleItems();
