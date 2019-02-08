@@ -135,14 +135,12 @@ function farm()
 }
 
 function giveAllSingleItems() {
-	if(!smart.moving) {
 	for (item in character.items) {
 		if (item == 0) continue;
 		if (!character.items[item]) continue;
 		if(parent.G.items[character.items[item].name].type === "pot") continue;
 		send_item(merchant_character_name, item, 1);
 		game_log(empty_slots);
-	}
 	}
 }
 
@@ -152,8 +150,8 @@ function empty_inventory()
 		smart_move({to:"town"});
 		giveAllSingleItems();
 	}
-	//giveAllSingleItems();
 }
+
 //This function contains our logic during resupply runs
 function resupply_potions()
 {
