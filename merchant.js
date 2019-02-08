@@ -1,7 +1,5 @@
 game_log("MERCHANT SCRIPT STARTED");
-
-load_code(3); // load gold per hour meter (use spadarfaars meter on github)
-
+load_code(3);
 // DEFINE OUT STATE VALUES
 var state = "walking_to_town";
 var new_state = "";
@@ -79,8 +77,16 @@ function state_controller() {
 if(character.esize <= bank_at_empty_slots && state != "upgrading") {
 	new_state = "banking";
 }
+
+if(state === "at_town" && state != "upgrading") {
+	openMerchStand();
+	new_state = "merching";
+}
+if(state != "merching" && isMerchStandActive() && state != "at_town") {
+	closeMerchStand();
+}
 	
-if(!isAtTown() && state === "at_town" && state != "banking") {
+if(!isAtTown() && state === "at_town" && state != "banking" && state != "upgrading") {
 	new_state = "walking_to_town";
 }
 if(isAtTown() && state === "walking_to_town") {
@@ -138,9 +144,9 @@ function moveTo(x, y) {
 
 // Main Upgrading function
 setInterval(function() {
-		if(state === "upgrading" && !smart.moving && character.gold > 250000) {
+		if(state === "upgrading" && !smart.moving && character.gold > 350000) {
 				if(locate_item("scroll0")==-1) buy("scroll0",200);
-				if(locate_item("scroll1")==-1) buy("scroll1",20);
+				if(locate_item("scroll1")==-1) buy("scroll1",5);
 				if(locate_item(item_name)==-1  ) buy(item_name,1);
 			for(var i=0;i<42;i++)
 			{
@@ -211,3 +217,27 @@ function depositItems() {
       bank_store(item);
     }
   }
+
+function isMerchStandActive() {
+  return character.stand !== false;
+}
+
+function openMerchStand() {
+  if (!isMerchStandActive()) {
+    parent.open_merchant(0);
+  }
+}
+
+function closeMerchStand() {
+  if (isMerchStandActive()) {
+    parent.close_merchant(0);
+  }
+}
+
+function toggleMerchStand() {
+  if (isMerchStandActive()) {
+    parent.close_merchant(0);
+  } else {
+    parent.open_merchant(0);
+  }
+}
