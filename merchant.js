@@ -79,7 +79,7 @@ function state_controller() {
 	if (loops < 51) {
 		loops += 1;
 	}
-	if (loops === 1) {
+	if (loops === 5) {
 		game_log("current state: " + state);
 		if(saySomething == true) {
 			say(phrase);
