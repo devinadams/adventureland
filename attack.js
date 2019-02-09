@@ -4,7 +4,7 @@ game_log("---Script Start---");
 // modified by fart
 
 //If your character has no target, it will travel to a spawn of the first monster in the list below.
-var monster_targets = ["bee"];
+var monster_targets = ["snake"];
 
 var use_skills = true;
 
@@ -18,8 +18,8 @@ var bank_at_empty_slots = 33;
 
 var state = "farm";
 
-var min_potions = 10; //The number of potions at which to do a resupply run.
-var purchase_amount = 500;//How many potions to buy at once.
+var min_potions = 50; //The number of potions at which to do a resupply run.
+var purchase_amount = 200;//How many potions to buy at once.
 var potion_types = ["hpot0", "mpot0"];//The types of potions to keep supplied.
 
 //Movement And Attacking
@@ -152,6 +152,29 @@ function empty_inventory()
 	}
 }
 
+function locate_item(name) {
+	for(var i=0;i<42;i++) {
+		if(character.items[i] && character.items[i].name==name) return i;
+	}
+	return -1;
+}
+
+function return_item_quantity(item) {
+	idx = locate_item(item);
+	if(idx != -1) {
+		return character.items[idx].q;
+	} else {
+		return 0;
+	}
+}
+
+function give_all_of_single_item(item) {
+	number_of_items = return_item_quantity(item);
+	if(number_of_items> 0) {
+		send_item(merchant_character_name, locate_item(item), number_of_items);
+	}
+}
+
 //This function contains our logic during resupply runs
 function resupply_potions()
 {
@@ -174,6 +197,9 @@ function resupply_potions()
 	if(distance_to_merchant != null 
 	   && distance_to_merchant < 250)
 	{
+	if(return_item_quantity("redenvelopev2") > 0) {
+		give_all_of_single_item("redenvelopev2");
+	}
 	if(character.gold > gold_empty_threshold) {
 		send_gold(merchant_character_name, character.gold - 10000);
 		//giveAllSingleItems();
@@ -219,7 +245,6 @@ function buy_potions()
 		game_log("Inventory Full!");
 	}
 }
-
 
 //Returns the number of items in your inventory for a given item name;
 function num_items(name)
