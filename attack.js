@@ -11,6 +11,7 @@ var use_skills = true;
 var merchant_character_name = "shidded";
 var gold_empty_threshold = 100000;
 var potion_allowance = 20000;
+var exchange_item_name = "candypop";
 
 var justRespawned = false;
 
@@ -197,8 +198,8 @@ function resupply_potions()
 	if(distance_to_merchant != null 
 	   && distance_to_merchant < 250)
 	{
-	if(return_item_quantity("redenvelopev2") > 0) {
-		give_all_of_single_item("redenvelopev2");
+	if(return_item_quantity(exchange_item_name) > 0) {
+		give_all_of_single_item(exchange_item_name);
 	}
 	if(character.gold > gold_empty_threshold) {
 		send_gold(merchant_character_name, character.gold - 10000);

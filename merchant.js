@@ -13,6 +13,12 @@ var have_stuff_to_sell = false; // Doesnt merchant have anything to sell?
 var saySomething = false; // Should merchant say something?
 var phrase = ""; // What merchant should say
 
+var upgradeMaxLevel = 9; //Max level it will stop upgrading items at if enabled
+
+var exchange_item_name = "candypop";
+var exchange_at = 100;
+var amount_of_exchange_items = return_item_quantity(exchange_item_name); // set exchange item name above
+
 var item_name = "staff";
 var gold_limit = 350000; // stop upgrading at this number - also starts upgrading above this number
 
@@ -33,6 +39,7 @@ setInterval(function () {
 switch(state)
 	{
 	case "upgrading":
+	upgrade_status = true;
 	if(!isAtBlacksmith()) {
 		moveTo(-190, -140); // blacksmith coords
 	}
@@ -56,7 +63,7 @@ switch(state)
 	case "at_town":
 	break;
 
-	case "envelope_exchange":
+	case "exchange":
 	if(!isAtExchange()) {
 		moveTo(-20, -460);
 	}
@@ -69,11 +76,6 @@ switch(state)
 var loops = 0;
 // This is where state values are returned based on conditionals
 function state_controller() {
-	
-	if (state != new_state) {
-		state = new_state;
-	}
-	
 	if (loops < 51) {
 		loops += 1;
 	}
@@ -89,22 +91,25 @@ function state_controller() {
 	if(upgrade_status === true) { //  && hasUpgraded === false
 		new_state = "upgrading";
 	}
-
-	var amount_of_envelopes = return_item_quantity("redenvelopev2");
 	
-	if(amount_of_envelopes >= 5) {
-		new_state = "envelope_exchange";
-		state = "envelope_exchange";
+	if(amount_of_exchange_items >= exchange_at) {
+		new_state = "exchange";
+		state = "exchange";
+	}
+	
+	if(state === "upgrading" && hasUpgraded === true) {
+		new_state = "walking_to_town";
 	}
 
-
-	if (state === "at_town" && character.gold > gold_limit && upgrade_status === false) {
-	new_state = "upgrading";
-	upgradeStatus = true;
+	if (state === "at_town" && character.gold > gold_limit && hasUpgraded == false) {
+		new_state = "upgrading";
+		state = "upgrading";
+		upgradeStatus = true;
+		return;
 }
 
 	// If we're not at town or doing anything else, set state walking to town
-	if(state != "at_town" && state != "upgrading" && state != "banking" && state != "merching" && state != "envelope_exchange") {
+	if(state != "at_town" && state != "upgrading" && state != "banking" && state != "merching" && state != "exchange") {
 		new_state = "walking_to_town";
 	}
 	
@@ -119,7 +124,7 @@ if(character.esize <= bank_at_empty_slots && state != "upgrading") {
 	new_state = "banking";
 }
 
-if(state === "at_town" && state != "upgrading" && state != "merching" && state != "envelope_exchange") {
+if(state === "at_town" && state != "upgrading" && state != "merching" && state != "exchange") {
 	if(isMerchStandActive() === false && have_stuff_to_sell == true) {
 		moveTo(33, 49);
 		new_state = "merching";
@@ -131,12 +136,12 @@ if(state != "merching" && isMerchStandActive() ) {
 }
 	
 	
-if(!isAtTown() && state === "at_town" && state != "banking" && state != "upgrading" && state != "envelope_exchange") {
+if(!isAtTown() && state === "at_town" && state != "banking" && state != "upgrading" && state != "exchange") {
 	new_state = "walking_to_town";
 }
 	
 	
-if(isAtTown() && state === "walking_to_town" && state != "envelope_exchange") {
+if(isAtTown() && state != "exchange" && state != "upgrading" && upgrade_status === false && state === "walking_to_town")  {
 	new_state = "at_town";
 }
 	
@@ -154,11 +159,11 @@ if (hasBeenToBank === true && character.esize >= 30 && upgrade_status === false)
 }
 	
 	// If in town and not upgrading set state at town
-if (isAtTown() && upgrade_status === false && state != "upgrading" && state != "envelope_exchange") {
+if (isAtTown() && upgrade_status === false && state != "upgrading" && state != "exchange") {
 	new_state = "at_town";
 		//inTown = false;
 }
-if(character.gold < gold_limit && state === "upgrading" && state != "envelope_exchange") {
+if(character.gold < gold_limit && state === "upgrading" && state != "exchange") {
 	new_state = "walking_to_town";
 }	
 	
@@ -184,20 +189,19 @@ function moveTo(x, y) {
     }
 }
 
-setInterval(function exchangeEnvelopes() {
-	if(isAtExchange() && state == "envelope_exchange") {
-		if(return_item_quantity("redenvelopev2") > 0) {
-			exchange(locate_item("redenvelopev2"));
+setInterval(function exchangeInterval() {
+	if(isAtExchange() && state == "exchange") {
+		if(return_item_quantity(exchange_item_name) > 0) {
+			exchange(locate_item(exchange_item_name));
 		} else {
-			game_log("changing state to walking to town ?? ")
+		//	game_log("changing state to walking to town ?? ")
 			new_state = "walking_to_town";
 		}
 
 	}
 
-}, 1000);
+}, 500);
 
-var upgradeMaxLevel = 8; //Max level it will stop upgrading items at if enabled
 var upgradeWhitelist = 
 	{
 		//ItemName, Max Level
@@ -206,7 +210,7 @@ var upgradeWhitelist =
 		carrotsword: upgradeMaxLevel,
 		firestaff: 7,
 		fireblade: 7,
-		staff: 7,
+		staff: upgradeMaxLevel,
 		sshield: 7,
 		shield: 7,
 		gloves: 7,
@@ -268,7 +272,7 @@ setInterval(function() {
 	{
 		upgrade();
 		compound_items();
-		if(character.gold < gold_limit && state == "upgrading") {
+		if(character.gold < gold_limit && state === "upgrading") {
 			hasUpgraded = true;
 		}
 	}
@@ -285,9 +289,15 @@ function upgrade() {
 
 		if (c) {
 			var level = upgradeWhitelist[c.name];
+			if(c.level === upgradeMaxLevel) {
+				hasUpgraded = true;
+				break;
+			}
 			if(level && c.level < level)
 			{
 				let grades = get_grade(c);
+				game_log(c.level);
+				game_log(level);
 				let scrollname;
 				if (c.level < grades[0])
 					scrollname = 'scroll0';
@@ -295,7 +305,10 @@ function upgrade() {
 					scrollname = 'scroll1';
 				else
 					scrollname = 'scroll2';
-
+				if(c.level >= grades[0]) {
+					hasUpgraded = true;
+					game_log("we made it herr343e.");
+				}
 				let [scroll_slot, scroll] = find_item(i => i.name == scrollname);
 				if (!scroll) {
 					parent.buy(scrollname);
@@ -310,7 +323,7 @@ function upgrade() {
 			  });
 			  return;
 			}
-    	}
+		}
   	}
 }
 
