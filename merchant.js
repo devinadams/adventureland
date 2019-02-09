@@ -1,12 +1,14 @@
 
 // Author: deez @discord, IGN: shidded
 // credits to spadarfaar and others for large portions of code
-// Define our state variables
+
 
 game_log("-----------------------")
 game_log("MERCHANT SCRIPT STARTED");
 game_log("-----------------------")
 
+
+// Define our state variables
 var state = "walking_to_town";
 var new_state = "";
 
@@ -23,7 +25,8 @@ var exchange_at = 100;
 var amount_of_exchange_items = return_item_quantity(exchange_item_name); // set exchange item name above
 
 var item_name = "staff";
-var gold_limit = 350000; // stop upgrading at this number - also starts upgrading above this number
+var gold_limit = 350000; // stop upgrading at this much gold
+var gold_start = 5000000; // start upgrading at this much gold
 
 var hasBeenToBank = false;
 var inTown = false;
@@ -105,7 +108,7 @@ function state_controller() {
 		new_state = "walking_to_town";
 	}
 
-	if (state === "at_town" && character.gold > gold_limit && hasUpgraded == false) {
+	if (state === "at_town" && character.gold > gold_start && hasUpgraded == false) {
 		new_state = "upgrading";
 		state = "upgrading";
 		upgradeStatus = true;
@@ -193,6 +196,7 @@ function moveTo(x, y) {
     }
 }
 
+// Exchange loop
 setInterval(function exchangeInterval() {
 	if(isAtExchange() && state == "exchange") {
 		if(return_item_quantity(exchange_item_name) > 0) {
@@ -206,6 +210,7 @@ setInterval(function exchangeInterval() {
 
 }, 500);
 
+// Credits to spadarfaar for upgrade functions, this is basically a C&P of his script
 var upgradeWhitelist = 
 	{
 		//ItemName, Max Level
@@ -270,14 +275,13 @@ var combineWhitelist =
 		strbelt: 3
 	}
 
-
+// Upgrade loop here
 setInterval(function() {
-	if(parent != null && parent.socket != null && state === "upgrading" && !smart.moving && character.gold > gold_limit)
+	if(parent != null && parent.socket != null && state === "upgrading" && !smart.moving && character.gold > gold_start)
 	{
 		upgrade();
 		compound_items();
 		if(character.gold < gold_limit) {
-			game_log("we set hasUpgraded here")
 			hasUpgraded = true;
 		}
 	}
@@ -285,6 +289,7 @@ setInterval(function() {
 }, 175);
 
 
+// Upgrade function, modified to buy a specific item set at top of script.
 function upgrade() {
 	
 	if(locate_item(item_name)==-1) buy(item_name,1);
@@ -390,6 +395,7 @@ function locate_item(name) {
 	return -1;
 }
 
+// Returns an items quantity
 function return_item_quantity(item) {
 	idx = locate_item(item);
 	if(idx != -1) {
@@ -397,14 +403,6 @@ function return_item_quantity(item) {
 	} else {
 		return 0;
 	}
-}
-
-// Return items by index?
-function return_item(name) {
-	for(var i=0;i<42;i++) {
-		if(character.items[i] && character.items[i].name==name) return character.items[i];
-	}
-	return -1;
 }
 
 // Check is inside bank by map
@@ -422,6 +420,7 @@ function isAtTown() {
 	}
 }
 
+// Check if in exchange area
 function isAtExchange() {
 	if(character.real_x >= -50 && character.real_y < -300 && character.real_x <= 50 && character.real_y >= -500) {
 		return true;
@@ -430,6 +429,7 @@ function isAtExchange() {
 	}
 }
 
+// Check if in black smith area
 function isAtBlacksmith() {
 	if(character.real_x >= -200 && character.real_x <= -100 && character.real_y >= -200 && character.real_y <= -100) {
 		return true;
@@ -459,22 +459,26 @@ function depositItems() {
     }
   }
 
+	// check is merch stand is active
 function isMerchStandActive() {
   return character.stand !== false;
 }
 
+// Open merch stand
 function openMerchStand() {
   if (!isMerchStandActive()) {
     parent.open_merchant(0);
   }
 }
 
+// Close merch stand
 function closeMerchStand() {
   if (isMerchStandActive()) {
     parent.close_merchant(0);
   }
 }
 
+// toggle merch stand (not used yet)
 function toggleMerchStand() {
   if (isMerchStandActive()) {
     parent.close_merchant(0);
