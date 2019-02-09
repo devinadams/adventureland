@@ -26,6 +26,7 @@ var hasBeenToBank = false;
 var inTown = false;
 var upgrade_status = false;
 var hasUpgraded = false;
+var finishedUpgrading = false;
 
 // This function calls our state controller every 3 seconds.
 // Our state controller returns a state then based on that state
@@ -79,7 +80,7 @@ function state_controller() {
 	if (loops < 51) {
 		loops += 1;
 	}
-	if (loops === 5) {
+	if (loops === 1) {
 		game_log("current state: " + state);
 		if(saySomething == true) {
 			say(phrase);
@@ -97,7 +98,7 @@ function state_controller() {
 		state = "exchange";
 	}
 	
-	if(state === "upgrading" && hasUpgraded === true) {
+	if(state === "upgrading" && hasUpgraded === true && finishedUpgrading == true) {
 		new_state = "walking_to_town";
 	}
 
@@ -272,7 +273,8 @@ setInterval(function() {
 	{
 		upgrade();
 		compound_items();
-		if(character.gold < gold_limit && state === "upgrading") {
+		if(character.gold < gold_limit) {
+			game_log("we set hasUpgraded here")
 			hasUpgraded = true;
 		}
 	}
@@ -282,7 +284,7 @@ setInterval(function() {
 
 function upgrade() {
 	
-	if(locate_item(item_name)==-1  ) buy(item_name,1);
+	if(locate_item(item_name)==-1) buy(item_name,1);
 	for (let i = 0; i < character.items.length; i++) 
 	{
 		let c = character.items[i];
@@ -290,14 +292,15 @@ function upgrade() {
 		if (c) {
 			var level = upgradeWhitelist[c.name];
 			if(c.level === upgradeMaxLevel) {
+				game_log(c.level);
+				game_log(upgradeMaxLevel);
 				hasUpgraded = true;
-				break;
+				finishedUpgrading = true;
+				//break;
 			}
 			if(level && c.level < level)
 			{
 				let grades = get_grade(c);
-				game_log(c.level);
-				game_log(level);
 				let scrollname;
 				if (c.level < grades[0])
 					scrollname = 'scroll0';
@@ -307,7 +310,6 @@ function upgrade() {
 					scrollname = 'scroll2';
 				if(c.level >= grades[0]) {
 					hasUpgraded = true;
-					game_log("we made it herr343e.");
 				}
 				let [scroll_slot, scroll] = find_item(i => i.name == scrollname);
 				if (!scroll) {
