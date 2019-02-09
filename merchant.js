@@ -1,9 +1,12 @@
+
+// Author: deez @discord, IGN: shidded
+// credits to spadarfaar and others for large portions of code
+// Define our state variables
+
 game_log("-----------------------")
 game_log("MERCHANT SCRIPT STARTED");
 game_log("-----------------------")
 
-
-// Define our state variables
 var state = "walking_to_town";
 var new_state = "";
 
