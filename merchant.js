@@ -1,39 +1,39 @@
-
 // Author: deez @discord, IGN: shidded
 // credits to spadarfaar and others for large portions of code
-
 
 game_log("-----------------------")
 game_log("MERCHANT SCRIPT STARTED");
 game_log("-----------------------")
 
-
-// Define our state variables
-var state = "walking_to_town";
-var new_state = "";
-
-var bank_at_empty_slots = 1; // Bank at this many empty slots
-
+// Merchant stand variables
 var have_stuff_to_sell = false; // Doesnt merchant have anything to sell?
 var saySomething = false; // Should merchant say something?
 var phrase = ""; // What merchant should say
 
-var upgradeMaxLevel = 9; //Max level it will stop upgrading items at if enabled
-
+// Exchange variables
 var exchange_item_name = "candypop";
 var exchange_at = 100;
 var amount_of_exchange_items = return_item_quantity(exchange_item_name); // set exchange item name above
 
+// Upgrade variables
 var item_name = "staff";
-var gold_limit = 350000; // stop upgrading at this much gold
+var upgradeMaxLevel = 9; //Max level it will stop upgrading items at if enabled
 var gold_start = 5000000; // start upgrading at this much gold
+var gold_limit = 350000; // stop upgrading at this much gold
 
+// Bank variable 
+var bank_at_empty_slots = 1; // Bank at this many empty slots
+
+// Various check variables
 var hasBeenToBank = false;
 var inTown = false;
 var upgrade_status = false;
 var hasUpgraded = false;
 var finishedUpgrading = false;
 
+// Define our state variables
+var state = "walking_to_town";
+var new_state = "";
 // This function calls our state controller every 3 seconds.
 // Our state controller returns a state then based on that state
 // We preform a function such as banking or upgrading
