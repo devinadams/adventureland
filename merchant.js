@@ -78,20 +78,25 @@ switch(state)
 
 	}
 	
-}, 6000);//Execute every 6 seconds?
+}, 5000);//Execute every 6 seconds?
 
 var loops = 0;
+var oldState = ""; // for state output
+var stateHolder = "";
 // This is where state values are returned based on conditionals
 function state_controller() {
 	if (loops < 51) {
 		loops += 1;
 	}
 	if (loops === 1) {
-		game_log("current state: " + state);
+		loops = 0;
+		if(state != oldState && state != stateHolder) {
+		   	stateHolder = state;
+			game_log("current state: " + state);
+		}
 		if(saySomething == true) {
 			say(phrase);
 		}
-		loops = 0;
 	}
 
 	// Check if we're already upgrading
@@ -183,7 +188,9 @@ if (hasUpgraded === true) {
 	upgrade_status = false;
 }
 if (state != new_state) {
+		oldState = state;
 		state = new_state;
+	
 	}
 	
 }
@@ -355,11 +362,6 @@ function compound_items() {
         parent.buy(scroll_name);
         return;
       }
-		
-	//	game_log(scroll_name);
-	//	game_log(c[i]);
-	//	game_log(c[i+1]);
-	//	game_log(c[i+2]);
       parent.socket.emit('compound', {
         items: [c[i], c[i + 1], c[i + 2]],
         scroll_num: scroll,
