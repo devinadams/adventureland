@@ -56,6 +56,12 @@ switch(state)
 	case "at_town":
 	break;
 
+	case "envelope_exchange":
+	if(!isAtExchange()) {
+		moveTo(-20, -460);
+	}
+	break;
+
 	}
 	
 }, 6000);//Execute every 6 seconds?
@@ -63,6 +69,11 @@ switch(state)
 var loops = 0;
 // This is where state values are returned based on conditionals
 function state_controller() {
+	
+	if (state != new_state) {
+		state = new_state;
+	}
+	
 	if (loops < 51) {
 		loops += 1;
 	}
@@ -73,25 +84,28 @@ function state_controller() {
 		}
 		loops = 0;
 	}
-//	game_log("current state: " + state);
 
 	// Check if we're already upgrading
 	if(upgrade_status === true) { //  && hasUpgraded === false
 		new_state = "upgrading";
 	}
+
+	var amount_of_envelopes = return_item_quantity("redenvelopev2");
 	
+	if(amount_of_envelopes >= 5) {
+		new_state = "envelope_exchange";
+		state = "envelope_exchange";
+	}
+
+
 	if (state === "at_town" && character.gold > gold_limit && upgrade_status === false) {
 	new_state = "upgrading";
 	upgradeStatus = true;
 }
+
 	// If we're not at town or doing anything else, set state walking to town
-	if(state != "at_town" && state != "upgrading" && state != "banking" && state != "merching") {
+	if(state != "at_town" && state != "upgrading" && state != "banking" && state != "merching" && state != "envelope_exchange") {
 		new_state = "walking_to_town";
-	}
-	
-	// Set state to new state
-	if(state != new_state) {
-		state = new_state;
 	}
 	
 		if(state === "merching" && isMerchStandActive() === false) 
@@ -105,7 +119,7 @@ if(character.esize <= bank_at_empty_slots && state != "upgrading") {
 	new_state = "banking";
 }
 
-if(state === "at_town" && state != "upgrading" && state != "merching") {
+if(state === "at_town" && state != "upgrading" && state != "merching" && state != "envelope_exchange") {
 	if(isMerchStandActive() === false && have_stuff_to_sell == true) {
 		moveTo(33, 49);
 		new_state = "merching";
@@ -116,15 +130,21 @@ if(state != "merching" && isMerchStandActive() ) {
 	closeMerchStand();
 }
 	
-if(!isAtTown() && state === "at_town" && state != "banking" && state != "upgrading") {
+	
+if(!isAtTown() && state === "at_town" && state != "banking" && state != "upgrading" && state != "envelope_exchange") {
 	new_state = "walking_to_town";
 }
-if(isAtTown() && state === "walking_to_town") {
+	
+	
+if(isAtTown() && state === "walking_to_town" && state != "envelope_exchange") {
 	new_state = "at_town";
 }
+	
+	
 if(state === "walking_to_town" && isInsideBank() === true) {
 		smart_move({to:"town"});
 }
+	
 	
 	// If chracter has been to bank and has more than 30 empty spaces
 	// walk to town
@@ -134,11 +154,11 @@ if (hasBeenToBank === true && character.esize >= 30 && upgrade_status === false)
 }
 	
 	// If in town and not upgrading set state at town
-if (isAtTown() && upgrade_status === false && state != "upgrading") {
+if (isAtTown() && upgrade_status === false && state != "upgrading" && state != "envelope_exchange") {
 	new_state = "at_town";
 		//inTown = false;
 }
-if(character.gold < gold_limit && state === "upgrading") {
+if(character.gold < gold_limit && state === "upgrading" && state != "envelope_exchange") {
 	new_state = "walking_to_town";
 }	
 	
@@ -157,7 +177,6 @@ if (state != new_state) {
 }
 // Move to function
 function moveTo(x, y) {
-	//if (!smart.moving && !isAtTown()) {
 	if(x === character.real_x && y == character.real_y) {
 		return;
 	} else {
@@ -165,6 +184,18 @@ function moveTo(x, y) {
     }
 }
 
+setInterval(function exchangeEnvelopes() {
+	if(isAtExchange() && state == "envelope_exchange") {
+		if(return_item_quantity("redenvelopev2") > 0) {
+			exchange(locate_item("redenvelopev2"));
+		} else {
+			game_log("changing state to walking to town ?? ")
+			new_state = "walking_to_town";
+		}
+
+	}
+
+}, 1000);
 
 var upgradeMaxLevel = 8; //Max level it will stop upgrading items at if enabled
 var upgradeWhitelist = 
@@ -243,6 +274,7 @@ setInterval(function() {
 	}
 
 }, 175);
+
 
 function upgrade() {
 	
@@ -340,6 +372,15 @@ function locate_item(name) {
 	return -1;
 }
 
+function return_item_quantity(item) {
+	idx = locate_item(item);
+	if(idx != -1) {
+		return character.items[idx].q;
+	} else {
+		return 0;
+	}
+}
+
 // Return items by index?
 function return_item(name) {
 	for(var i=0;i<42;i++) {
@@ -357,6 +398,14 @@ function isInsideBank() {
 // Check is inside resting coord(THESE MIGHT NEED TO BE EXPANDED) range in town.
 function isAtTown() {
 	if(character.real_x >= -20 && character.real_y < 20 && character.real_x <= 20 && character.real_y >= -20) {
+		return true;
+	} else {
+  	return false;
+	}
+}
+
+function isAtExchange() {
+	if(character.real_x >= -50 && character.real_y < -300 && character.real_x <= 50 && character.real_y >= -500) {
 		return true;
 	} else {
   	return false;
