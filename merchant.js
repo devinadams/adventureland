@@ -17,9 +17,9 @@ var amount_of_exchange_items = return_item_quantity(exchange_item_name); // set 
 
 // Upgrade variables
 var item_name = "staff";
-var upgradeMaxLevel = 9; //Max level it will stop upgrading items at if enabled
-var gold_start = 1000000; // start upgrading at this much gold
-var gold_limit = 100000; // stop upgrading at this much gold
+var upgradeMaxLevel = 10; //Max level it will stop upgrading items at if enabled
+var gold_start = 100000; // start upgrading at this much gold
+var gold_limit = 10000; // stop upgrading at this much gold
 
 // Bank variable 
 var bank_at_empty_slots = 1; // Bank at this many empty slots
@@ -34,6 +34,73 @@ var finishedUpgrading = false;
 // Define our state variables
 var state = "walking_to_town";
 var new_state = "";
+
+// Credits to spadarfaar for upgrade functions, this is basically a C&P of his script
+var upgradeWhitelist = 
+	{
+		//ItemName, Max Level
+		pyjamas: upgradeMaxLevel,
+		bunnyears: upgradeMaxLevel,
+		carrotsword: upgradeMaxLevel,
+		firestaff: 7,
+		fireblade: 7,
+		staff: upgradeMaxLevel,
+		sshield: 7,
+		shield: 7,
+		gloves: 7,
+		coat: 7,
+		helmet: 7,
+		pants: 7,
+		gloves1: 7,
+		coat1: 7,
+		helmet1: 7,
+		pants1: 7,
+		shoes1: 7,
+		harbringer: 5,
+		oozingterror: 5,
+		bataxe: 7,
+		spear: 7,
+		xmaspants: 7,
+		xmassweater: 7,
+		xmashat: 7,
+		xmasshoes: 7,
+		mittens: 7,
+		ornamentstaff: 7,
+		candycanesword: 7,
+		warmscarf: 7,
+		t2bow: 7,
+		pmace: 7,
+		basher: 7,
+		harmor: 5,
+		hgloves: 5,
+		wingedboots: 7
+	};
+
+var combineWhitelist = 
+	{
+		//ItemName, Max Level
+		wbook0: 3,
+		lostearring: 2,
+		hpamulet: 2,
+		strearring: 3,
+		intearring: 3,
+		dexearring: 3,
+		hpbelt: 2,
+		ringsj: 2,
+		strring: 3,
+		intring: 3,
+		dexring: 3,
+		vitring: 3,
+		dexamulet: 3,
+		intamulet: 3,
+		stramulet: 3,
+		vitearring: 3,
+		dexbelt: 3,
+		intbelt: 3,
+		strbelt: 3
+	}
+
+
 // This function calls our state controller every 3 seconds.
 // Our state controller returns a state then based on that state
 // We preform a function such as banking or upgrading
@@ -217,70 +284,6 @@ setInterval(function exchangeInterval() {
 
 }, 500);
 
-// Credits to spadarfaar for upgrade functions, this is basically a C&P of his script
-var upgradeWhitelist = 
-	{
-		//ItemName, Max Level
-		pyjamas: upgradeMaxLevel,
-		bunnyears: upgradeMaxLevel,
-		carrotsword: upgradeMaxLevel,
-		firestaff: 7,
-		fireblade: 7,
-		staff: upgradeMaxLevel,
-		sshield: 7,
-		shield: 7,
-		gloves: 7,
-		coat: 7,
-		helmet: 7,
-		pants: 7,
-		gloves1: 7,
-		coat1: 7,
-		helmet1: 7,
-		pants1: 7,
-		shoes1: 7,
-		harbringer: 5,
-		oozingterror: 5,
-		bataxe: 7,
-		spear: 7,
-		xmaspants: 7,
-		xmassweater: 7,
-		xmashat: 7,
-		xmasshoes: 7,
-		mittens: 7,
-		ornamentstaff: 7,
-		candycanesword: 7,
-		warmscarf: 7,
-		t2bow: 7,
-		pmace: 7,
-		basher: 7,
-		harmor: 5,
-		hgloves: 5,
-		wingedboots: 7
-	};
-
-var combineWhitelist = 
-	{
-		//ItemName, Max Level
-		wbook0: 3,
-		lostearring: 2,
-		hpamulet: 3,
-		strearring: 3,
-		intearring: 3,
-		dexearring: 3,
-		hpbelt: 3,
-		ringsj: 3,
-		strring: 3,
-		intring: 3,
-		dexring: 3,
-		vitring: 3,
-		dexamulet: 3,
-		intamulet: 3,
-		stramulet: 3,
-		vitearring: 3,
-		dexbelt: 3,
-		intbelt: 3,
-		strbelt: 3
-	}
 
 // Upgrade loop here
 setInterval(function() {
