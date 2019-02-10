@@ -18,8 +18,8 @@ var amount_of_exchange_items = return_item_quantity(exchange_item_name); // set 
 // Upgrade variables
 var item_name = "staff";
 var upgradeMaxLevel = 9; //Max level it will stop upgrading items at if enabled
-var gold_start = 5000000; // start upgrading at this much gold
-var gold_limit = 350000; // stop upgrading at this much gold
+var gold_start = 1000000; // start upgrading at this much gold
+var gold_limit = 100000; // stop upgrading at this much gold
 
 // Bank variable 
 var bank_at_empty_slots = 1; // Bank at this many empty slots
@@ -284,7 +284,7 @@ var combineWhitelist =
 
 // Upgrade loop here
 setInterval(function() {
-	if(parent != null && parent.socket != null && state === "upgrading" && !smart.moving && character.gold > gold_start)
+	if(parent != null && parent.socket != null && state === "upgrading" && !smart.moving && character.gold > gold_limit)
 	{
 		upgrade();
 		compound_items();
