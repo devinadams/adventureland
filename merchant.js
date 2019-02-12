@@ -17,9 +17,9 @@ var amount_of_exchange_items = return_item_quantity(exchange_item_name); // set 
 
 // Upgrade variables
 var item_name = "staff";
-var upgradeMaxLevel = 10; //Max level it will stop upgrading items at if enabled
-var gold_start = 100000; // start upgrading at this much gold
-var gold_limit = 10000; // stop upgrading at this much gold
+var upgradeMaxLevel = 9; //Max level it will stop upgrading items at if enabled
+var gold_start = 2000000; // start upgrading at this much gold
+var gold_limit = 50000; // stop upgrading at this much gold
 
 // Bank variable 
 var bank_at_empty_slots = 1; // Bank at this many empty slots
@@ -28,7 +28,9 @@ var bank_at_empty_slots = 1; // Bank at this many empty slots
 var hasBeenToBank = false;
 var inTown = false;
 var upgrade_status = false;
+var compound_status = false;
 var hasUpgraded = false;
+var hasCompounded = false;
 var finishedUpgrading = false;
 
 // Define our state variables
@@ -81,12 +83,12 @@ var combineWhitelist =
 		//ItemName, Max Level
 		wbook0: 3,
 		lostearring: 2,
-		hpamulet: 2,
+		hpamulet: 3,
 		strearring: 3,
 		intearring: 3,
 		dexearring: 3,
-		hpbelt: 2,
-		ringsj: 2,
+		hpbelt: 3,
+		ringsj: 3,
 		strring: 3,
 		intring: 3,
 		dexring: 3,
@@ -118,6 +120,14 @@ switch(state)
 		moveTo(-190, -140); // blacksmith coords
 	}
 	break;
+
+	case "compounding":
+	compound_status = true;
+	if(!isAtBlacksmith()) {
+		moveTo(-190, -140); // blacksmith coords
+	}
+	break;
+
 					
 	case "walking_to_town":
 	if(!isInsideBank()) {
@@ -170,7 +180,19 @@ function state_controller() {
 	if(upgrade_status === true) { //  && hasUpgraded === false
 		new_state = "upgrading";
 	}
+
+	if(state === "compounding" && hasCompounded === true || state === "compounding" && returnItemsToCompound() != "undefined") {
+		new_state = "walking_to_town";
+	}
+
+	if(compound_status === true && returnItemsToCompound() != "undefined") { //  && hasUpgraded === false
+		new_state = "compounding";
+	}
 	
+	if(state === "compounding" && hasCompounded === true || state === "compounding" && returnItemsToCompound() != "undefined") {
+		new_state = "walking_to_town";
+	}
+
 	if(amount_of_exchange_items >= exchange_at) {
 		new_state = "exchange";
 		state = "exchange";
@@ -187,8 +209,16 @@ function state_controller() {
 		return;
 }
 
+if (state === "at_town" && returnItemsToCompound() != null && hasCompounded === false) {
+	game_log("set it here...")
+	new_state = "compounding";
+	state = "compounding";
+	compoundStatus = true;
+	return;
+}
+
 	// If we're not at town or doing anything else, set state walking to town
-	if(state != "at_town" && state != "upgrading" && state != "banking" && state != "merching" && state != "exchange") {
+	if(state != "at_town" && state != "upgrading" && state != "banking" && state != "merching" && state != "exchange" && state != "compounding") {
 		new_state = "walking_to_town";
 	}
 	
@@ -215,12 +245,12 @@ if(state != "merching" && isMerchStandActive() ) {
 }
 	
 	
-if(!isAtTown() && state === "at_town" && state != "banking" && state != "upgrading" && state != "exchange") {
+if(!isAtTown() && state === "at_town" && state != "banking" && state != "upgrading" && state != "compounding" && state != "exchange") {
 	new_state = "walking_to_town";
 }
 	
 	
-if(isAtTown() && state != "exchange" && state != "upgrading" && upgrade_status === false && state === "walking_to_town")  {
+if(isAtTown() && state != "exchange" && state != "upgrading" && state != "compounding" && upgrade_status === false && state === "walking_to_town")  {
 	new_state = "at_town";
 }
 	
@@ -232,7 +262,7 @@ if(state === "walking_to_town" && isInsideBank() === true) {
 	
 	// If chracter has been to bank and has more than 30 empty spaces
 	// walk to town
-if (hasBeenToBank === true && character.esize >= 30 && upgrade_status === false) {
+if (hasBeenToBank === true && character.esize >= 25 && upgrade_status === false) {
 	new_state = "walking_to_town";
 	hasBeenToBank = false;
 }
@@ -294,7 +324,16 @@ setInterval(function() {
 		if(character.gold < gold_limit) {
 			hasUpgraded = true;
 		}
+	} else if(parent != null && parent.socket != null && state === "compounding" && character.gold > 6400)
+	{
+		compound_items();
+		if(returnItemsToCompound() === "undefined" || character.gold < 6400) {
+			hasCompounded = true;
+			compound_status = false;
+		}
+
 	}
+	
 
 }, 175);
 
@@ -310,8 +349,6 @@ function upgrade() {
 		if (c) {
 			var level = upgradeWhitelist[c.name];
 			if(c.level === upgradeMaxLevel) {
-				game_log(c.level);
-				game_log(upgradeMaxLevel);
 				hasUpgraded = true;
 				finishedUpgrading = true;
 				//break;
@@ -345,6 +382,23 @@ function upgrade() {
 			}
 		}
   	}
+}
+
+function returnItemsToCompound() {
+	let to_compound = character.items.reduce((collection, item, index) => {
+    if (item && combineWhitelist[item.name] != null && item.level < combineWhitelist[item.name]) {
+      let key = item.name + item.level;
+      !collection.has(key) ? collection.set(key, [item.level, item_grade(item), index]) : collection.get(key).push(index);
+    }
+    return collection;
+  }, new Map());
+
+  for (var c of to_compound.values()) {
+		for (let i = 2; i + 2 < c.length; i += 3) {
+			return [c[i], c[i + 1], c[i + 2]];
+		}
+		//game_log([c[i], c[i + 1], c[i + 2]],)
+	}
 }
 
 function compound_items() {
