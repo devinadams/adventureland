@@ -1,16 +1,19 @@
 game_log("---Script Start---");
 //Put monsters you want to kill in here
 // Script by Spadar
-// modified by fart - discord@ deez
+// modified by fart
 //If your character has no target, it will travel to a spawn of the first monster in the list below.
+//load_code(3);
+var monster_targets = ["bee"];
 
-var monster_targets = ["snake"];
-
-var use_skills = false; // enable skills here
+var use_skills = false; // set to true to use skills or false to not use skills
 var characterClass = "mage"; // set your character class here
-var skillList = ['burst']; // set list of skills to use here (loops over them)
+var skillList = ['burst']; // use this skill
+var manaSkillThreshhold = 1200; // use skills above this much mana
 
-var merchant_character_name = "YOUR MERCHANTS NAME HERE";
+var attemptKite = false; // attempt to poorly kite enemies?
+
+var merchant_character_name = "YOUR CHARACTER NAME HERE";
 var gold_empty_threshold = 100000;
 var potion_allowance = 20000;
 var exchange_item_name = "candypop";
@@ -51,7 +54,7 @@ setInterval(function () {
     loot();
 	
     //Heal With Potions if we're below 75% hp.
-    if (character.hp / character.max_hp < 0.6 || character.mp / character.max_mp < 0.75) {
+    if (character.hp / character.max_hp < 0.6 || character.mp / character.max_mp < 0.8) {
         use_hp_or_mp();
     }
 }, 250 );//Execute 4 times per second
@@ -115,9 +118,12 @@ function farm()
     if (target != null) {
         if (distance_to_point(target.real_x, target.real_y) < character.range) {
             if (can_attack(target)) {
-                attack(target);
+				attack(target);
+				if(attemptKite === true) {
+					smart_move({ x: target.real_x  - 80 , y: target.real_y - 80}); // very poor way to kite (work in progress)
+				}
 				if(use_skills === true) {
-					if(character.mp >= 800 && character.ctype === characterClass) {
+					if(character.mp >= manaSkillThreshhold && character.ctype === characterClass) {
 						for(skill in skillList) {
 							var skillName = skillList[skill]; 
 						use_skill(skillName, target);
