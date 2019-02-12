@@ -1,12 +1,12 @@
 game_log("---Script Start---");
 //Put monsters you want to kill in here
 // Script by Spadar
-// modified by fart
+// modified by fart - discord@ deez
 //If your character has no target, it will travel to a spawn of the first monster in the list below.
 
 var monster_targets = ["snake"];
 
-var use_skills = true;
+var use_skills = false; // enable skills here
 var characterClass = "mage"; // set your character class here
 var skillList = ['burst']; // set list of skills to use here (loops over them)
 
@@ -121,7 +121,6 @@ function farm()
 						for(skill in skillList) {
 							var skillName = skillList[skill]; 
 						use_skill(skillName, target);
-							game_log(skillName);
 						}
 						//use_hp_or_mp();
 					}
