@@ -2,20 +2,20 @@ game_log("---Script Start---");
 //Put monsters you want to kill in here
 // Script by Spadar
 // modified by fart
-
 //If your character has no target, it will travel to a spawn of the first monster in the list below.
+
 var monster_targets = ["snake"];
 
-var use_skills = true;
+var use_skills = false;
 
-var merchant_character_name = "shidded";
+var merchant_character_name = "YOUR MERCHANTS NAME HERE."; // Make sure your merchant is standing in town. 
 var gold_empty_threshold = 100000;
 var potion_allowance = 20000;
 var exchange_item_name = "candypop";
 
 var justRespawned = false;
 
-var bank_at_empty_slots = 33;
+var bank_at_empty_slots = 38;
 
 var state = "farm";
 
@@ -141,7 +141,7 @@ function giveAllSingleItems() {
 		if (!character.items[item]) continue;
 		if(parent.G.items[character.items[item].name].type === "pot") continue;
 		send_item(merchant_character_name, item, 1);
-		game_log(empty_slots);
+		//game_log(empty_slots);
 	}
 }
 

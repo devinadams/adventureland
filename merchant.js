@@ -12,8 +12,7 @@ var phrase = ""; // What merchant should say
 
 // Exchange variables
 var exchange_item_name = "candypop";
-var exchange_at = 100;
-var amount_of_exchange_items = return_item_quantity(exchange_item_name); // set exchange item name above
+var exchange_at = 25;
 
 // Upgrade variables
 var item_name = "staff";
@@ -162,6 +161,8 @@ var oldState = ""; // for state output
 var stateHolder = "";
 // This is where state values are returned based on conditionals
 function state_controller() {
+	var amount_of_exchange_items = return_item_quantity(exchange_item_name); 
+	
 	if (loops < 51) {
 		loops += 1;
 	}
@@ -175,13 +176,21 @@ function state_controller() {
 			say(phrase);
 		}
 	}
+	
+	if(amount_of_exchange_items > exchange_at) {
+		new_state = "exchange";
+		state = "exchange";
+	} else if(amount_of_exchange_items < 5 && state === "exchange") {
+		new_state = "walking_to_town";
+		state = "walking_to_town";
+	}
 
 	// Check if we're already upgrading
 	if(upgrade_status === true) { //  && hasUpgraded === false
 		new_state = "upgrading";
 	}
 
-	if(state === "compounding" && hasCompounded === true || state === "compounding" && returnItemsToCompound() != "undefined") {
+	if(state === "compounding" && hasCompounded === true || state === "compounding" && returnItemsToCompound() !== "undefined") {
 		new_state = "walking_to_town";
 	}
 
@@ -189,13 +198,8 @@ function state_controller() {
 		new_state = "compounding";
 	}
 	
-	if(state === "compounding" && hasCompounded === true || state === "compounding" && returnItemsToCompound() != "undefined") {
+		if(state === "compounding" && hasCompounded === true || state === "compounding" && returnItemsToCompound() !== "undefined") {
 		new_state = "walking_to_town";
-	}
-
-	if(amount_of_exchange_items >= exchange_at) {
-		new_state = "exchange";
-		state = "exchange";
 	}
 	
 	if(state === "upgrading" && hasUpgraded === true && finishedUpgrading == true) {
@@ -240,6 +244,7 @@ if(state === "at_town" && state != "upgrading" && state != "merching" && state !
 		state = "merching";
 	}
 }
+	
 if(state != "merching" && isMerchStandActive() ) {
 	closeMerchStand();
 }
