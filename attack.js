@@ -6,9 +6,11 @@ game_log("---Script Start---");
 
 var monster_targets = ["snake"];
 
-var use_skills = false;
+var use_skills = true;
+var characterClass = "mage"; // set your character class here
+var skillList = ['burst']; // set list of skills to use here (loops over them)
 
-var merchant_character_name = "YOUR MERCHANTS NAME HERE."; // Make sure your merchant is standing in town. 
+var merchant_character_name = "YOUR MERCHANTS NAME HERE";
 var gold_empty_threshold = 100000;
 var potion_allowance = 20000;
 var exchange_item_name = "candypop";
@@ -115,8 +117,12 @@ function farm()
             if (can_attack(target)) {
                 attack(target);
 				if(use_skills === true) {
-					if(character.mp >= 800 && character.ctype === "mage") {
-						use_skill("burst", target);
+					if(character.mp >= 800 && character.ctype === characterClass) {
+						for(skill in skillList) {
+							var skillName = skillList[skill]; 
+						use_skill(skillName, target);
+							game_log(skillName);
+						}
 						//use_hp_or_mp();
 					}
 				}
