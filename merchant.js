@@ -4,6 +4,7 @@
 game_log("-----------------------")
 game_log("MERCHANT SCRIPT STARTED");
 game_log("-----------------------")
+load_code(12); // party script
 
 // Merchant stand variables
 var have_stuff_to_sell = false; // Doesnt merchant have anything to sell?
@@ -11,13 +12,14 @@ var saySomething = false; // Should merchant say something?
 var phrase = ""; // What merchant should say
 
 // Exchange variables
-var exchange_item_name = "candypop";
-var exchange_at = 25;
+var exchange_item_name = ["candypop", "gem0"];
+var exchange_at = 10;
+var exchange_at_two = 2;
 
 // Upgrade variables
-var item_name = "staff";
+var item_name = "bow";
 var upgradeMaxLevel = 9; //Max level it will stop upgrading items at if enabled
-var gold_start = 2000000; // start upgrading at this much gold
+var gold_start = 1000000; // start upgrading at this much gold
 var gold_limit = 50000; // stop upgrading at this much gold
 
 // Bank variable 
@@ -46,9 +48,11 @@ var upgradeWhitelist =
 		firestaff: 7,
 		fireblade: 7,
 		staff: upgradeMaxLevel,
+		bow: upgradeMaxLevel,
 		sshield: 7,
 		shield: 7,
 		gloves: 7,
+		shoes: 7,
 		coat: 7,
 		helmet: 7,
 		pants: 7,
@@ -85,18 +89,18 @@ var combineWhitelist =
 		hpamulet: 3,
 		strearring: 3,
 		intearring: 3,
-		dexearring: 3,
+		dexearring: 2,
 		hpbelt: 3,
 		ringsj: 3,
 		strring: 3,
 		intring: 3,
-		dexring: 3,
+		dexring: 2,
 		vitring: 3,
-		dexamulet: 3,
+		dexamulet: 2,
 		intamulet: 3,
 		stramulet: 3,
 		vitearring: 3,
-		dexbelt: 3,
+		dexbelt: 2,
 		intbelt: 3,
 		strbelt: 3
 	}
@@ -130,7 +134,7 @@ switch(state)
 					
 	case "walking_to_town":
 	if(!isInsideBank()) {
-		moveTo(0, 0);
+		smart_move({to:"town"});
 	} else {
 		smart_move({to:"town"});
 	}
@@ -154,15 +158,15 @@ switch(state)
 
 	}
 	
-}, 5000);//Execute every 6 seconds?
+}, 10000);//Execute every 10 seconds?
 
 var loops = 0;
 var oldState = ""; // for state output
 var stateHolder = "";
 // This is where state values are returned based on conditionals
 function state_controller() {
-	var amount_of_exchange_items = return_item_quantity(exchange_item_name); 
-	
+	var amount_of_exchange_itemsOne = return_item_quantity(exchange_item_name[0]); 
+	var amount_of_exchange_itemsTwo = return_item_quantity(exchange_item_name[1]);
 	if (loops < 51) {
 		loops += 1;
 	}
@@ -177,10 +181,10 @@ function state_controller() {
 		}
 	}
 	
-	if(amount_of_exchange_items > exchange_at) {
+	if(amount_of_exchange_itemsOne >= exchange_at || amount_of_exchange_itemsTwo >= exchange_at_two) {
 		new_state = "exchange";
 		state = "exchange";
-	} else if(amount_of_exchange_items < 5 && state === "exchange") {
+	} else if(amount_of_exchange_itemsOne < 10 && state === "exchange" || amount_of_exchange_itemsTwo === 0 && state === "exchange") {
 		new_state = "walking_to_town";
 		state = "walking_to_town";
 	}
@@ -307,17 +311,22 @@ function moveTo(x, y) {
 
 // Exchange loop
 setInterval(function exchangeInterval() {
+	var exchangeItemTwo = return_item_quantity(exchange_item_name[1]);
+	var exchangeItemOne = return_item_quantity(exchange_item_name[0]);
 	if(isAtExchange() && state == "exchange") {
-		if(return_item_quantity(exchange_item_name) > 0) {
-			exchange(locate_item(exchange_item_name));
+		if(exchangeItemOne > 0) {
+			exchange(locate_item(exchange_item_name[0]));
+		}
+		if (exchangeItemTwo > 0) {
+			 game_log("made it here");
+			exchange(locate_item(exchange_item_name[1]));
+		}
 		} else {
 		//	game_log("changing state to walking to town ?? ")
 			new_state = "walking_to_town";
 		}
 
-	}
-
-}, 500);
+}, 1000);
 
 
 // Upgrade loop here

@@ -3,29 +3,30 @@ game_log("---Script Start---");
 // Script by Spadar
 // modified by fart
 //If your character has no target, it will travel to a spawn of the first monster in the list below.
-//load_code(3);
-var monster_targets = ["bee"];
+load_code(3);
+load_code(12);
+var monster_targets = ["osnake", "snake"];
 
 var use_skills = false; // set to true to use skills or false to not use skills
-var characterClass = "mage"; // set your character class here
-var skillList = ['burst']; // use this skill
-var manaSkillThreshhold = 1200; // use skills above this much mana
+var characterClass = "ranger"; // set your character class here
+var skillList = ['5shot']; // use this skill
+var manaSkillThreshhold = 420; // use skills above this much mana
 
 var attemptKite = false; // attempt to poorly kite enemies?
 
-var merchant_character_name = "YOUR CHARACTER NAME HERE";
-var gold_empty_threshold = 100000;
-var potion_allowance = 20000;
+var merchant_character_name = "shidded";
+var gold_empty_threshold = 200000;
+var potion_allowance = 30000;
 var exchange_item_name = "candypop";
 
 var justRespawned = false;
 
-var bank_at_empty_slots = 38;
+var bank_at_empty_slots = 30;
 
 var state = "farm";
 
-var min_potions = 50; //The number of potions at which to do a resupply run.
-var purchase_amount = 200;//How many potions to buy at once.
+var min_potions = 20; //The number of potions at which to do a resupply run.
+var purchase_amount = 500;//How many potions to buy at once.
 var potion_types = ["hpot0", "mpot0"];//The types of potions to keep supplied.
 
 //Movement And Attacking
@@ -47,17 +48,17 @@ setInterval(function () {
 			empty_inventory();
 			break;
 	}
-}, 50);//Execute 10 times per second
+}, 75);//Execute 10 times per second
 
 //Potions And Looting
 setInterval(function () {
     loot();
 	
     //Heal With Potions if we're below 75% hp.
-    if (character.hp / character.max_hp < 0.6 || character.mp / character.max_mp < 0.8) {
+    if (character.hp / character.max_hp < 0.8 || character.mp / character.max_mp < 0.8) {
         use_hp_or_mp();
     }
-}, 250 );//Execute 4 times per second
+}, 200 );//Execute 4 times per second
 
 // Check if player is dead every 30 seconds  - weedszard
 setInterval(function () {
@@ -72,7 +73,7 @@ setInterval(function () {
 		justRespawned = false;
 		oldLocation = {};
 	}
-}, 30000);
+}, 10000);
 			
 function state_controller()
 {
@@ -93,7 +94,7 @@ function state_controller()
 			break;
 		}
 	}
-	if(empty_slots <= bank_at_empty_slots) {
+	if(empty_slots <= bank_at_empty_slots || character.gold > gold_empty_threshold) {
 		new_state = "emptying_inventory";
 	}
 	if(empty_slots >= 40 && state === "emptying_inventory") {
@@ -120,7 +121,7 @@ function farm()
             if (can_attack(target)) {
 				attack(target);
 				if(attemptKite === true) {
-					smart_move({ x: target.real_x  - 80 , y: target.real_y - 80}); // very poor way to kite (work in progress)
+					smart_move({ x: target.real_x  - 100 , y: target.real_y - 20}); // very poor way to kite (work in progress)
 				}
 				if(use_skills === true) {
 					if(character.mp >= manaSkillThreshhold && character.ctype === characterClass) {
@@ -146,6 +147,12 @@ function farm()
 	}
 }
 
+function sendAllGold() {
+	if(character.gold > gold_empty_threshold) {
+		send_gold(merchant_character_name, character.gold - 10000);
+		//giveAllSingleItems();
+	}
+}
 function giveAllSingleItems() {
 	for (item in character.items) {
 		if (item == 0) continue;
@@ -161,6 +168,7 @@ function empty_inventory()
 	if (!smart.moving) {
 		smart_move({to:"town"});
 		giveAllSingleItems();
+		sendAllGold();
 	}
 }
 
@@ -203,6 +211,7 @@ function resupply_potions()
 		&& (distance_to_merchant == null || distance_to_merchant > 250)) {
 			smart.use_town = true;
 			giveAllSingleItems();
+			smart_move({to:"town"});
             smart_move({ to:"potions"});
     }
 	
